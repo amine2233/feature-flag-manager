@@ -58,7 +58,7 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
     // MARK: - FlagsProvider Conformance
 
     public func valueForFlag<Value>(key: FeatureFlagKeyPath) -> Value? where Value: FeatureFlagProtocol {
-        guard let rawObject: Any = BentoDict.getValueInDictionary(storage, forKeyPath: key),
+        guard let rawObject: Any = BentoDict.getValueInDictionary(storage, for: key),
               let encodedFlag = EncodedFlagValue(object: rawObject, classType: Value.self) else {
             return nil
         }
@@ -80,7 +80,7 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
     ///   - key: key to remove.
     ///   - save: `true` to save the provider's data snapshot to disk.
     public func resetValueForFlag(key: FeatureFlagKeyPath) throws {
-        BentoDict.removeValue(&storage, forKeyPath: key)
+        BentoDict.removeValue(&storage, for: key)
 
         try saveToDisk()
     }

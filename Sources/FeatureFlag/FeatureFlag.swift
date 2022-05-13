@@ -734,7 +734,7 @@ public class JSONData {
     /// - Parameter keyPath: keypath.
     /// - Returns: V?
     public func valueForKey<V>(_ keyPath: String) -> V?  {
-        return dictionary.value(forKeyPath: keyPath) as? V
+        return dictionary.value(forKey: keyPath) as? V
     }
 
 }
