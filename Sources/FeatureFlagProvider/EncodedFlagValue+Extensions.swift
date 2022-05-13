@@ -6,21 +6,9 @@
 //
 
 import Foundation
+import FeatureFlag
 
-// MARK: - EncodedFlagValue
-/// Defines all the types you can encode/decode as flag value.
-/// Custom type you conform to `FeatureFlagProtocol` must be able to be represented with one of the following types.
-public enum EncodedFlagValue: Equatable {
-    case array([EncodedFlagValue])
-    case bool(Bool)
-    case dictionary([String: EncodedFlagValue])
-    case data(Data)
-    case double(Double)
-    case float(Float)
-    case integer(Int)
-    case none
-    case string(String)
-    case json(NSDictionary)
+extension EncodedFlagValue {
 
     // MARK: - Initialization
 
@@ -29,7 +17,7 @@ public enum EncodedFlagValue: Equatable {
     /// - Parameters:
     ///   - object: object to decode.
     ///   - typeHint: type of data.
-    internal init?<Value>(object: Any, classType: Value.Type) where Value: FeatureFlagProtocol {
+    init?<Value>(object: Any, classType: Value.Type) where Value: FeatureFlagProtocol {
         switch object {
             case let value as Bool where classType.EncodedValue == Bool.self || classType.EncodedValue == Optional<Bool>.self:
                 self = .bool(value)
@@ -63,7 +51,7 @@ public enum EncodedFlagValue: Equatable {
     /// Trnsform boxed data in a valid `NSObject` you can store.
     ///
     /// - Returns: NSObject
-    internal func nsObject() -> NSObject {
+    func nsObject() -> NSObject {
         switch self {
             case let .array(value):
                 return value.map({ $0.nsObject() }) as NSArray
@@ -86,16 +74,5 @@ public enum EncodedFlagValue: Equatable {
             case let .json(value):
                 return value as NSDictionary
         }
-    }
-
-}
-
-// MARK: - String Literal Support
-/// It's used to initialize a new flag metadata directly with only the description string instead of
-/// creating the `FeatureFlagMetadata` object.
-extension FeatureFlagMetadata: ExpressibleByStringLiteral {
-
-    public init(stringLiteral value: String) {
-        self.init(description: value, isInternal: false)
     }
 }

@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Amine Bensalah on 13/05/2022.
-//
-
 import Foundation
 
 /// A type that represents the wrapped value of a `FeatureFlag`
@@ -343,4 +336,512 @@ internal class LoaderBox {
     }
 
     init() {}
+}
+
+// MARK: - Codable
+public extension Decodable where Self: FeatureFlagProtocol, Self: Encodable {
+
+    init?(encoded value: EncodedFlagValue) {
+        guard case .data(let data) = value else {
+            return nil
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            self = try decoder.decode(Self.self, from: data)
+        } catch {
+            return nil
+        }
+    }
+
+}
+
+public extension Encodable where Self: FeatureFlagProtocol, Self: Decodable {
+
+    func encoded() -> EncodedFlagValue {
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .sortedKeys
+            return .data(try encoder.encode(self))
+        } catch {
+            return .data(Data())
+        }
+    }
+
+}
+
+// MARK: - Array
+extension Array: FeatureFlagProtocol where Element: FeatureFlagProtocol {
+    public typealias EncodedValue = [Element.EncodedValue]
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .array(let array) = value else {
+            return nil
+        }
+
+        self = array.compactMap {
+            Element(encoded: $0)
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .array(self.map({
+            $0.encoded()
+        }))
+    }
+
+}
+
+// MARK: - Dictionary
+extension Dictionary: FeatureFlagProtocol where Key == String, Value: FeatureFlagProtocol {
+    public typealias EncodedValue = [String: Value.EncodedValue]
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .dictionary(let dictionary) = value else {
+            return nil
+        }
+
+        self = dictionary.compactMapValues {
+            Value(encoded: $0)
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .dictionary(self.mapValues({
+            $0.encoded()
+        }))
+    }
+}
+
+// MARK: - Date
+extension Date: FeatureFlagProtocol {
+    public typealias EncodedValue = Date
+
+    private static let isoFormatter = ISO8601DateFormatter()
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .string(let rawDate) = value,
+              let date = Date.isoFormatter.date(from: rawDate) else {
+            return nil
+        }
+
+        self = date
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .string(Date.isoFormatter.string(from: self))
+    }
+
+}
+
+// MARK: - URL
+extension URL: FeatureFlagProtocol {
+    public typealias EncodedValue = Date
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .string(let value) = value else {
+            return nil
+        }
+
+        self.init(string: value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .string(self.absoluteString)
+    }
+
+}
+
+// MARK: - Int
+extension Int: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case .integer(let v):
+                self = v
+            case .string(let v):
+                self = (v as NSString).integerValue
+            default:
+                return nil
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(self)
+    }
+
+}
+
+// MARK: - Int8
+extension Int8: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = Int8(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+}
+
+// MARK: - Int16
+extension Int16: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = Int16(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+}
+
+// MARK: - Int32
+extension Int32: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = Int32(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+}
+
+// MARK: - Int64
+extension Int64: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = Int64(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - UInt
+extension UInt: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = UInt(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - UInt8
+extension UInt8: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = UInt8(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - UInt16
+extension UInt16: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = UInt16(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - UInt32
+extension UInt32: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = UInt32(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - UInt64
+extension UInt64: FeatureFlagProtocol {
+    public typealias EncodedValue = Int
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let value = Int(encoded: value) else {
+            return nil
+        }
+
+        self = UInt64(value)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .integer(Int(self))
+    }
+
+}
+
+// MARK: - Double
+extension Double: FeatureFlagProtocol {
+    public typealias EncodedValue = Double
+
+    public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case let .double(value):
+                self = value
+            case let .float(value):
+                self = Double(value)
+            case let .integer(value):
+                self = Double(value)
+            case let .string(value):
+                self = (value as NSString).doubleValue
+            default:
+                return nil
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .double(self)
+    }
+
+}
+
+// MARK: - Float
+extension Float: FeatureFlagProtocol {
+    public typealias EncodedValue = Float
+
+    public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case .float(let v):
+                self = v
+            case .double(let v):
+                self = Float(v)
+            case .integer(let v):
+                self = Float(v)
+            case .string(let v):
+                self = (v as NSString).floatValue
+            default:
+                return nil
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .float(self)
+    }
+
+}
+
+// MARK: JSON
+public class JSONData {
+
+    // MARK: - Private Properties
+
+    /// Dictionary contents
+    private var dictionary: NSDictionary
+
+    // MARK: - Initialization
+
+    /// Initialize a new JSON with data.
+    ///
+    /// - Parameter dict: dictionary
+    public init(_ dict: NSDictionary?) {
+        self.dictionary = dict ?? [:]
+    }
+
+    /// Initialize with a dictionary.
+    ///
+    /// - Parameter dict: dictionary.
+    public init(_ dict: [String: Any]) {
+        self.dictionary = dict as NSDictionary
+    }
+
+    /// Initialize with json string. Return `nil` if invalid json.
+    ///
+    /// - Parameter jsonString: json string
+    public init?(jsonString: String) {
+        guard let data = jsonString.data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? NSDictionary else {
+            return nil
+        }
+
+        self.dictionary = dict
+    }
+
+    required public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case .json(let dict):
+                self.dictionary = dict
+            default:
+                return nil
+        }
+    }
+
+    // MARK: - Public Functions
+
+    /// Get the value for a given keypath.
+    ///
+    /// - Parameter keyPath: keypath.
+    /// - Returns: V?
+    public func valueForKey<V>(_ keyPath: String) -> V?  {
+        return dictionary.value(forKeyPath: keyPath) as? V
+    }
+
+}
+
+// MARK: JSONData (FlagProtocol)
+extension JSONData: FeatureFlagProtocol {
+    public typealias EncodedValue = NSDictionary
+
+    public func encoded() -> EncodedFlagValue {
+        .json(self.dictionary)
+    }
+
+}
+
+// MARK: - Boolean Type
+extension Bool: FeatureFlagProtocol {
+    public typealias EncodedValue = Bool
+
+    public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case .bool(let v):
+                self = v
+            case .integer(let v):
+                self = (v != 0)
+            case .string(let v):
+                self = (v as NSString).boolValue
+            default:
+                return nil
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .bool(self)
+    }
+
+}
+
+// MARK: - String Type
+extension String: FeatureFlagProtocol {
+    public typealias EncodedValue = String
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .string(let value) = value else {
+            return nil
+        }
+
+        self = value
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .string(self)
+    }
+
+}
+
+// MARK: - Data Type
+extension Data: FeatureFlagProtocol {
+    public typealias EncodedValue = Data
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard case .data(let value) = value else {
+            return nil
+        }
+
+        self = value
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .data(self)
+    }
+
+}
+
+// MARK: - RawRepresentable
+extension RawRepresentable where Self: FeatureFlagProtocol, RawValue: FeatureFlagProtocol {
+    public typealias EncodedValue = RawValue.EncodedValue
+
+    public init?(encoded value: EncodedFlagValue) {
+        guard let rawValue = RawValue(encoded: value) else {
+            return nil
+        }
+
+        self.init(rawValue: rawValue)
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        self.rawValue.encoded()
+    }
+
+}
+
+// MARK: - Optional
+extension Optional: FeatureFlagProtocol where Wrapped: FeatureFlagProtocol {
+    public typealias EncodedValue = Wrapped.EncodedValue?
+
+    public init?(encoded value: EncodedFlagValue) {
+        if case .none = value {
+            self = .none
+        } else if let wrapped = Wrapped(encoded: value) {
+            self = wrapped
+        } else {
+            self = .none
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        self?.encoded() ?? .none
+    }
+
 }
