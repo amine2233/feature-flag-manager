@@ -721,7 +721,7 @@ public class JSONData {
     required public init?(encoded value: EncodedFlagValue) {
         switch value {
             case .json(let dict):
-                self.dictionary = dict
+            self.dictionary = dict.value as? [String: Any] ?? [:]
             default:
                 return nil
         }
@@ -744,7 +744,7 @@ extension JSONData: FeatureFlagProtocol {
     public typealias EncodedValue = [String: Any]
 
     public func encoded() -> EncodedFlagValue {
-        .json(self.dictionary)
+        return .json(AnyCodable(self.dictionary))
     }
 
 }

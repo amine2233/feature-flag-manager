@@ -50,7 +50,7 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
         let fileExists = FileManager.default.fileExists(atPath: localURL.path)
 
         self.localURL = localURL
-        self.storage = (!fileExists ? [:] : NSDictionary(contentsOfFile: localURL.path) as? [String: Any] ?? [:])
+        self.storage = (!fileExists ? [:] : FileManager.default.loadAnyCodable(url: localURL))
         self.shortDescription = "File Backed \((localURL.path as NSString).lastPathComponent)"
         self.name = "Local Provider"
     }
@@ -67,7 +67,7 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
     }
 
     public func setValue<Value>(_ value: Value?, forFlag key: FeatureFlagKeyPath) throws -> Bool where Value: FeatureFlagProtocol {
-        let encodedValue = value?.encoded().nsObject()
+        let encodedValue = value?.encoded()
         BentoDict.setValueForDictionary(&storage, value: encodedValue, keyPath: key)
 
         try saveToDisk()
@@ -94,7 +94,7 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
             return
         }
 
-        let data = NSDictionary(dictionary: storage)
+        let data = try JSONEncoder().encode(AnyCodable(storage))
         try data.write(to: localURL)
     }
 
@@ -108,4 +108,12 @@ public class LocalProvider: FeatureFlagsProvider, Identifiable {
         storage.removeAll()
     }
 
+}
+
+extension FileManager {
+    func loadAnyCodable(url: URL) -> [String: Any] {
+        guard let data = contents(atPath: url.path) else { return [String: Any]() }
+        guard let dictionary = try? JSONDecoder().decode([String: AnyCodable].self, from: data) else { return [String: Any]() }
+        return dictionary
+    }
 }
