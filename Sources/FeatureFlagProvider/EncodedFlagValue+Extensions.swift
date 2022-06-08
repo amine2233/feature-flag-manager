@@ -41,7 +41,7 @@ extension EncodedFlagValue {
                 self = .dictionary(value.compactMapValues({
                     EncodedFlagValue(object: $0, classType: classType)
                 }))
-            case let value as NSDictionary:
+            case let value as [String: Any]:
                 self = .json(value)
             default:
                 return nil
@@ -60,7 +60,7 @@ extension EncodedFlagValue {
             case let .data(value):
                 return value as NSData
             case let .dictionary(value):
-                return value.mapValues({ $0.nsObject() }) as NSDictionary
+                return value.mapValues({ $0.nsObject() }) as [String: Any]
             case let .double(value):
                 return value as NSNumber
             case let .float(value):
@@ -72,7 +72,7 @@ extension EncodedFlagValue {
             case let .string(value):
                 return value as NSString
             case let .json(value):
-                return value as NSDictionary
+                return value as [String: Any]
         }
     }
 }

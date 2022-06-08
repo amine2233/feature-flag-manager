@@ -5,6 +5,7 @@ import FeatureFlag
 /// UserDefaults dictionary.
 /// Keys are not stored in a tree but locally (the full path is the final key used to store the value).
 /// Values are stored as `Data` and all primitives and `Codable` conformant objects are supported.
+#if !os(Linux)
 extension UserDefaults: FeatureFlagsProvider {
 
     // MARK: - Public Properties
@@ -55,3 +56,4 @@ extension UserDefaults: FeatureFlagsProvider {
     }
 
 }
+#endif

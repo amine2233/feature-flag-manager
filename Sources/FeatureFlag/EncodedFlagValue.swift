@@ -3,7 +3,7 @@ import Foundation
 // MARK: - EncodedFlagValue
 /// Defines all the types you can encode/decode as flag value.
 /// Custom type you conform to `FeatureFlagProtocol` must be able to be represented with one of the following types.
-public enum EncodedFlagValue: Equatable {
+public enum EncodedFlagValue {
     case array([EncodedFlagValue])
     case bool(Bool)
     case dictionary([String: EncodedFlagValue])
@@ -13,7 +13,7 @@ public enum EncodedFlagValue: Equatable {
     case integer(Int)
     case none
     case string(String)
-    case json(NSDictionary)
+    case json([String: Any])
 }
 
 // MARK: - String Literal Support

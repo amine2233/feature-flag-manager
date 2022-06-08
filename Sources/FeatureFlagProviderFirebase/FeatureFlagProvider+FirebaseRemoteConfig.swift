@@ -98,7 +98,7 @@ public class FirebaseRemoteProvider: FlagsProvider {
                 return firebaseData.numberValue.uint64Value as? Value
 
             case is JSONData.Type:
-                return JSONData(firebaseData.jsonValue as? NSDictionary) as? Value
+                return JSONData(firebaseData.jsonValue as? [String: Any]) as? Value
 
             case is URL.Type:
                 return URL(string: firebaseData.stringValue ?? "") as? Value
