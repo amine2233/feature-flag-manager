@@ -51,7 +51,7 @@ public struct FeatureFlagKeyPath: Equatable, Hashable {
 
     // MARK: - Initialization
 
-    internal init(components: [String], separator: String) {
+    public init(components: [String], separator: String) {
         self.pathComponents = components
         self.pathSeparator = separator
     }

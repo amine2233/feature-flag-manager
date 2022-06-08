@@ -36,7 +36,7 @@ public protocol FeatureFlagConfigurableProtocol {
 /// list of providers to query. Then you can fetch feature flag's values directly
 /// by accessing to the relative properties from this instance via dynamic member lookup.
 @dynamicMemberLookup
-public class FeatureFlagsLoader<Collection: FeatureFlagCollectionProtocol>: FeatureFlagsLoaderProtocol, CustomDebugStringConvertible {
+public final class FeatureFlagsLoader<Collection: FeatureFlagCollectionProtocol>: FeatureFlagsLoaderProtocol, CustomDebugStringConvertible {
 
     // MARK: - Public Properties
 

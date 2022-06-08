@@ -73,7 +73,7 @@ extension EncodedFlagValue {
             case let .string(value):
                 return value as NSString
             case let .json(value):
-            return NSDictionary(dictionary: value.value as? [String: Any] ?? [:])
+                return NSDictionary(dictionary: value.value as? [String: Any] ?? [:])
         }
     }
     #endif

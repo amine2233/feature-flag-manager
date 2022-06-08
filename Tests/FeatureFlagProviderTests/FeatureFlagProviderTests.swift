@@ -1,29 +1,68 @@
 import XCTest
+import FeatureFlag
 @testable import FeatureFlagProvider
 
 class FeatureFlagProviderTests: XCTestCase {
+    
+    // Allocate your own data providers
+    let mockProvider = FeatureFlagsProviderMock(dictionary: [:])
+    // let fbProvider = FirebaseRemoteProvider()
+
+    // Loader is the point for query values
+    var userFlagsLoader: FeatureFlagsLoader<UserFlags>!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        self.userFlagsLoader = FeatureFlagsLoader(
+            UserFlags.self, // load flags definition
+            description: .init(name: "User Features", description: "Cool experimental features for user account"),
+            providers: [mockProvider]) // set providers
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func test_show_social_login_default_value() throws {
+        // given
+        
+        // when
+        let result = self.userFlagsLoader.showSocialLogin
+        
+        // then
+        XCTAssertTrue(result)
+    }
+    
+    func test_show_social_login_set_default_value() throws {
+        // given
+        self.userFlagsLoader.$showSocialLogin.setDefault(false)
+        
+        // when
+        let result = self.userFlagsLoader.$showSocialLogin.defaultValue
+        
+        // then
+        XCTAssertFalse(result)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    func test_show_social_login_set_new_value() throws {
+        // given
+        self.userFlagsLoader.$showSocialLogin.setValue(false)
+        
+        // when
+        let result = self.userFlagsLoader.showSocialLogin
+        
+        // then
+        XCTAssertFalse(result)
     }
-
+    
+    func test_show_social_login_set_reset_value() throws {
+        // given
+        self.userFlagsLoader.$showSocialLogin.setValue(false)
+        try self.userFlagsLoader.$showSocialLogin.resetValue()
+        
+        // when
+        let result = self.userFlagsLoader.showSocialLogin
+        
+        // then
+        XCTAssertTrue(result)
+    }
 }
