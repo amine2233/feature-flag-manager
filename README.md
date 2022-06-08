@@ -1,6 +1,6 @@
 # feature-flag-manager
 
-A description of this package.
+A description of this package. inspired by [RealFlags](https://github.com/immobiliare/RealFlags)
 
 ## Tests
 

@@ -1,6 +1,6 @@
 import Foundation
 
-internal extension String {
+extension String {
 
     // MARK: - Internal Functions
 
@@ -8,7 +8,7 @@ internal extension String {
     ///
     /// - Parameter transform: transformation.
     /// - Returns: String
-    func transform(_ transform: Transform) -> String {
+    public func transform(_ transform: Transform) -> String {
         switch transform {
             case .none: return self
             case .kebabCase: return toSnakeCase(separator: "-")

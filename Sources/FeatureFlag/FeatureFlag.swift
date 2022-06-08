@@ -682,8 +682,26 @@ extension Float: FeatureFlagProtocol {
 
 }
 
+// MARK: - AnyDecodable
+extension AnyCodable: FeatureFlagProtocol {
+    public typealias EncodedValue = AnyCodable
+    
+    public init?(encoded value: EncodedFlagValue) {
+        switch value {
+            case .json(let dict):
+                self = dict
+            default:
+                return nil
+        }
+    }
+
+    public func encoded() -> EncodedFlagValue {
+        .json(self)
+    }
+}
+
 // MARK: JSON
-public class JSONData {
+public final class JSONData {
 
     // MARK: - Private Properties
 
