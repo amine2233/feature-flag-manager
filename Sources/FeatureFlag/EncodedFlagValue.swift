@@ -13,7 +13,7 @@ public enum EncodedFlagValue: Equatable {
     case integer(Int)
     case none
     case string(String)
-    case json(NSDictionary)
+    case json(AnyCodable)
 }
 
 // MARK: - String Literal Support

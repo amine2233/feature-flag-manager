@@ -41,8 +41,8 @@ extension EncodedFlagValue {
                 self = .dictionary(value.compactMapValues({
                     EncodedFlagValue(object: $0, classType: classType)
                 }))
-            case let value as NSDictionary:
-                self = .json(value)
+            case let value as [String: Any]:
+                self = .json(AnyCodable(value))
             default:
                 return nil
         }
@@ -51,6 +51,7 @@ extension EncodedFlagValue {
     /// Trnsform boxed data in a valid `NSObject` you can store.
     ///
     /// - Returns: NSObject
+    #if !os(Linux)
     func nsObject() -> NSObject {
         switch self {
             case let .array(value):
@@ -72,7 +73,8 @@ extension EncodedFlagValue {
             case let .string(value):
                 return value as NSString
             case let .json(value):
-                return value as NSDictionary
+            return NSDictionary(dictionary: value.value as? [String: Any] ?? [:])
         }
     }
+    #endif
 }

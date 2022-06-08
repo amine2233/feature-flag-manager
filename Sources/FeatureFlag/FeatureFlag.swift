@@ -688,14 +688,14 @@ public class JSONData {
     // MARK: - Private Properties
 
     /// Dictionary contents
-    private var dictionary: NSDictionary
+    private var dictionary: [String: Any]
 
     // MARK: - Initialization
 
     /// Initialize a new JSON with data.
     ///
     /// - Parameter dict: dictionary
-    public init(_ dict: NSDictionary?) {
+    public init(_ dict: [String: Any]?) {
         self.dictionary = dict ?? [:]
     }
 
@@ -703,7 +703,7 @@ public class JSONData {
     ///
     /// - Parameter dict: dictionary.
     public init(_ dict: [String: Any]) {
-        self.dictionary = dict as NSDictionary
+        self.dictionary = dict
     }
 
     /// Initialize with json string. Return `nil` if invalid json.
@@ -711,7 +711,7 @@ public class JSONData {
     /// - Parameter jsonString: json string
     public init?(jsonString: String) {
         guard let data = jsonString.data(using: .utf8),
-              let dict = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? NSDictionary else {
+              let dict = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
             return nil
         }
 
@@ -721,7 +721,7 @@ public class JSONData {
     required public init?(encoded value: EncodedFlagValue) {
         switch value {
             case .json(let dict):
-                self.dictionary = dict
+            self.dictionary = dict.value as? [String: Any] ?? [:]
             default:
                 return nil
         }
@@ -734,17 +734,17 @@ public class JSONData {
     /// - Parameter keyPath: keypath.
     /// - Returns: V?
     public func valueForKey<V>(_ keyPath: String) -> V?  {
-        return dictionary.value(forKey: keyPath) as? V
+        return dictionary[keyPath] as? V
     }
 
 }
 
 // MARK: JSONData (FlagProtocol)
 extension JSONData: FeatureFlagProtocol {
-    public typealias EncodedValue = NSDictionary
+    public typealias EncodedValue = [String: Any]
 
     public func encoded() -> EncodedFlagValue {
-        .json(self.dictionary)
+        return .json(AnyCodable(self.dictionary))
     }
 
 }
